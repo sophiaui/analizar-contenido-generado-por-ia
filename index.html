@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Con inteligencIA — Plataforma Ética de Verificación</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f4f7fb;
+      --surface-2: #eef3f9;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --blue: #0b5cab;
+      --blue-dark: #08427a;
+      --teal: #0ea5a4;
+      --real: #15803d;
+      --real-bg: #dcfce7;
+      --fake: #b91c1c;
+      --fake-bg: #fee2e2;
+      --warn: #b45309;
+      --warn-bg: #fef3c7;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--surface);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    .app-frame {
+      max-width: 560px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg);
+      box-shadow: 0 0 0 1px #e2e8f0;
+      position: relative;
+      padding-bottom: 3rem;
+    }
+
+    /* Encabezado superior */
+    .header-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0.7rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .menu-trigger {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 1.35rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .menu-trigger:hover {
+      background: var(--surface);
+      border-color: var(--blue);
+    }
+
+    .search-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      border: 1.5px solid var(--line);
+      border-radius: 999px;
+      padding: 0.4rem 0.85rem;
+      background: var(--surface);
+    }
+
+    .search-wrap input {
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-size: 0.9rem;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .home-badge-btn {
+      border: 1.5px solid #bae6fd;
+      background: #f0f9ff;
+      color: var(--blue-dark);
+      border-radius: 999px;
+      padding: 0.38rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Menú desplegable */
+    .nav-menu {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 12px;
+      z-index: 60;
+      width: 248px;
+      background: var(--bg);
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.16);
+      padding: 0.35rem;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .nav-menu.open {
+      display: flex;
+    }
+
+    .nav-menu button {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      padding: 0.72rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-menu button:hover,
+    .nav-menu button.active {
+      background: #eff6ff;
+      color: var(--blue);
+    }
+
+    .section-view {
+      display: none;
+      padding: 1.15rem 1.1rem 0;
+      animation: fadeSlide 0.18s ease;
+    }
+
+    .section-view.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Portada principal */
+    .brand-header {
+      text-align: center;
+      padding-top: 0.35rem;
+    }
+
+    .lens-graphic {
+      position: relative;
+      width: 162px;
+      height: 146px;
+      margin: 0 auto 0.65rem;
+    }
+
+    .lens-circle {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      border: 6px solid #0284c7;
+      background: #f0f9ff;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.22rem;
+      box-shadow: inset 0 0 0 3px #bae6fd;
+    }
+
+    .lens-char {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #0f2942;
+      line-height: 1;
+    }
+
+    .lens-cog {
+      font-size: 1.55rem;
+      color: #0369a1;
+      line-height: 1;
+    }
+
+    .lens-stem {
+      position: absolute;
+      width: 48px;
+      height: 14px;
+      background: #0f3b66;
+      border-radius: 999px;
+      right: 8px;
+      bottom: 12px;
+      transform: rotate(42deg);
+    }
+
+    .brand-title-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .brand-title-wrap h1 {
+      margin: 0;
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .ia-orb {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #0284c7;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.82rem;
+      font-weight: 900;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .brand-desc {
+      margin: 0 auto 1.15rem;
+      max-width: 380px;
+      font-size: 0.95rem;
+      color: #334155;
+    }
+
+    /* Zona de subida */
+    .upload-box {
+      border: 2px dashed #7dd3fc;
+      border-radius: 18px;
+      padding: 0.9rem;
+      background: #f8fcff;
+    }
+
+    .main-upload-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 0.95rem 1.15rem;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      color: #ffffff;
+      font-size: 1.08rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      box-shadow: 0 6px 16px rgba(11, 92, 171, 0.2);
+    }
+
+    .sub-upload-btn {
+      width: 100%;
+      margin-top: 0.6rem;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 0.58rem 0.75rem;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .sub-upload-btn:hover {
+      border-color: var(--blue);
+    }
+
+    .status-banner {
+      margin-top: 0.7rem;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    #main-img-preview,
+    #main-vid-preview {
+      display: none;
+      max-width: 100%;
+      max-height: 245px;
+      margin: 0.75rem auto 0;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+
+    /* Resultado + Reporte descargable */
+    .result-panel {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+    }
+
+    .verdict-chip {
+      display: inline-block;
+      padding: 0.26rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      margin-bottom: 0.35rem;
+    }
+
+    .chip-real {
+      background: var(--real-bg);
+      color: var(--real);
+    }
+
+    .chip-fake {
+      background: var(--fake-bg);
+      color: var(--fake);
+    }
+
+    .chip-warn {
+      background: var(--warn-bg);
+      color: var(--warn);
+    }
+
+    .meter-rail {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 0.55rem 0 0.75rem;
+    }
+
+    .meter-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.35s ease;
+    }
+
+    .findings-list {
+      margin: 0;
+      padding-left: 1.15rem;
+      font-size: 0.9rem;
+    }
+
+    .findings-list li {
+      margin-bottom: 0.3rem;
+    }
+
+    .report-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-download {
+      flex: 1;
+      min-width: 150px;
+      border: none;
+      border-radius: 10px;
+      padding: 0.62rem 0.85rem;
+      background: var(--blue);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-toggle-txt {
+      flex: 1;
+      min-width: 140px;
+      border: 1.5px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .report-sheet {
+      display: none;
+      margin-top: 0.7rem;
+      padding: 0.75rem;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1px dashed var(--line);
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      color: #334155;
+    }
+
+    .privacy-box {
+      margin-top: 1rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid #e2e8f0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Analizador de texto en Inicio */
+    .text-analyzer-card {
+      margin-top: 1.2rem;
+      padding: 1rem;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--line);
+      background: var(--bg);
+    }
+
+    .text-analyzer-card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 115px;
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1.5px solid var(--line);
+      font-size: 0.94rem;
+      resize: vertical;
+      margin-bottom: 0.65rem;
+    }
+
+    .btn-dark {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      background: #0f172a;
+      color: #fff;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Títulos de secciones del menú */
+    .view-title {
+      margin: 0 0 0.3rem;
+      font-size: 1.38rem;
+      font-weight: 800;
+    }
+
+    .view-subtitle {
+      margin: 0 0 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* Sección 1: Valores (solo texto) */
+    .values-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .value-row {
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .value-row strong {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .value-row p {
+      margin: 0;
+      font-size: 0.89rem;
+      color: var(--muted);
+    }
+
+    /* Sección 2: Código ético */
+    .ethics-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .ethics-item {
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      background: var(--surface);
+      border-left: 4px solid var(--blue);
+    }
+
+    .ethics-item h3 {
+      margin: 0 0 0.3rem;
+      font-size: 0.92rem;
+    }
+
+    .ethics-item p {
+      margin: 0;
+      font-size: 0.88rem;
+    }
+
+    .feedback-wrap {
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      font-size: 0.92rem;
+      margin-bottom: 0.65rem;
+      background: var(--bg);
+    }
+
+    .feedback-note {
+      margin-top: 0.55rem;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--real);
+    }
+
+    /* Sección 3: Analizador de enlaces y fuentes */
+    .link-result {
+      display: none;
+      margin-top: 0.9rem;
+      padding: 0.95rem;
+      border-radius: 12px;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+    }
+
+    /* Sección 4: Historial de imágenes en sesión */
+    .history-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .btn-clear {
+      border: 1.5px solid #fecaca;
+      background: #fef2f2;
+      color: var(--fake);
+      border-radius: 10px;
+      padding: 0.48rem 0.8rem;
+      font-size: 0.83rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .history-card {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .history-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .history-meta {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.85rem;
+    }
+
+    .history-name {
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Sección 5: Policía Cibernética */
+    .authority-card {
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      margin-bottom: 0.85rem;
+    }
+
+    .authority-card h3 {
+      margin: 0 0 0.55rem;
+      font-size: 1rem;
+      color: var(--blue-dark);
+    }
+
+    .authority-list {
+      margin: 0;
+      padding-left: 1.15rem;
+      font-size: 0.9rem;
+    }
+
+    .authority-list li {
+      margin-bottom: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+
+    <!-- Barra superior -->
+    <header class="header-bar">
+      <button
+        id="hamburger-trigger"
+        class="menu-trigger"
+        type="button"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+      >
+        ☰
+      </button>
+
+      <div class="search-wrap">
+        <span>🔍</span>
+        <input
+          id="top-search-input"
+          type="search"
+          placeholder="Buscar consejo o sección"
+        />
+      </div>
+
+      <button
+        class="home-badge-btn"
+        type="button"
+        data-target-section="inicio"
+      >
+        Inicio
+      </button>
+    </header>
+
+    <!-- Menú desplegable -->
+    <nav id="dropdown-nav" class="nav-menu" aria-label="Apartados de la plataforma">
+      <button type="button" data-target-section="valores">
+        <span>1. Valores</span>
+        <span>›</span>
+      </button>
+      <button type="button" data-target-section="codigo">
+        <span>2. Código ético</span>
+        <span>›</span>
+      </button>
+      <button type="button" data-target-section="enlaces">
+        <span>3. Analizador de enlaces</span>
+        <span>›</span>
+      </button>
+      <button type="button" data-target-section="historial">
+        <span>4. Historial de imágenes</span>
+        <span>›</span>
+      </button>
+      <button type="button" data-target-section="policia">
+        <span>5. Policía Cibernética</span>
+        <span>›</span>
+      </button>
+    </nav>
+
+    <!-- PANTALLA PRINCIPAL: INICIO -->
+    <section id="section-inicio" class="section-view active">
+      <div class="brand-header">
+        <div class="lens-graphic" aria-hidden="true">
+          <div class="lens-circle">
+            <span class="lens-char">I</span>
+            <span class="lens-cog">⚙</span>
+            <span class="lens-char">A</span>
+          </div>
+          <div class="lens-stem"></div>
+        </div>
+
+        <div class="brand-title-wrap">
+          <h1>Con inteligenc</h1>
+          <span class="ia-orb">IA</span>
+        </div>
+
+        <p class="brand-desc">
+          Sube una foto, video o archivo para comprobar si es <strong>IA</strong> o <strong>real</strong>, revisa texto y descarga tu reporte de evidencia.
+        </p>
+      </div>
+
+      <input
+        type="file"
+        id="file-upload-main"
+        accept="image/*,video/*,.pdf,.txt,.md,.csv,.json"
+        style="display:none;"
+      />
+
+      <div class="upload-box">
+        <button id="btn-pick-media" class="main-upload-btn" type="button">
+          <span>🖼️</span>
+          <span>Subir Foto, Video o Archivo</span>
+        </button>
+
+        <button id="btn-jump-links" class="sub-upload-btn" type="button">
+          🔗 Revisar enlace o fuente sospechosa
+        </button>
+      </div>
+
+      <div id="main-status" class="status-banner"></div>
+      <img id="main-img-preview" alt="Vista previa de imagen" />
+      <video id="main-vid-preview" controls playsinline></video>
+
+      <!-- Resultado + Descarga de reporte -->
+      <div id="main-result-panel" class="result-panel">
+        <span id="main-verdict-chip" class="verdict-chip"></span>
+        <h2 id="main-verdict-title" style="margin: 0.2rem 0 0.35rem; font-size: 1.05rem;"></h2>
+        <div class="meter-rail">
+          <div id="main-meter-bar" class="meter-bar"></div>
+        </div>
+        <ul id="main-findings" class="findings-list"></ul>
+
+        <div class="report-bar">
+          <button id="btn-download-report" class="btn-download" type="button">
+            ⬇️ Descargar reporte (.txt)
+          </button>
+          <button id="btn-view-report" class="btn-toggle-txt" type="button">
+            📄 Ver reporte
+          </button>
+        </div>
+        <div id="report-sheet" class="report-sheet"></div>
+      </div>
+
+      <div class="privacy-box">
+        <strong>Aviso de privacidad:</strong> Las imágenes, videos y archivos <strong>no se guardan en ninguna nube</strong> ni servidor externo. <strong>No se aceptan fotos ni videos explícitos</strong>, inapropiados o ilícitos, ni archivos mayores a 100 MB.
+      </div>
+
+      <!-- Analizador de texto -->
+      <div class="text-analyzer-card">
+        <h2>Analizador de texto</h2>
+        <textarea
+          id="main-text-area"
+          placeholder="Pega o escribe un texto para analizar si tiene señales de IA o si es real..."
+        ></textarea>
+        <button id="btn-check-text" class="btn-dark" type="button">Analizar texto</button>
+      </div>
+    </section>
+
+    <!-- APARTADO 1: VALORES (solo texto) -->
+    <section id="section-valores" class="section-view">
+      <h2 class="view-title">Nuestros valores</h2>
+      <p class="view-subtitle">Principios éticos que guían el funcionamiento de la plataforma.</p>
+
+      <div class="values-col searchable-block">
+        <div class="value-row">
+          <strong>Respeto</strong>
+          <p>Trato digno hacia todas las personas y protección de su privacidad.</p>
+        </div>
+        <div class="value-row">
+          <strong>Justicia</strong>
+          <p>Criterios claros, objetivos y equitativos al evaluar el contenido.</p>
+        </div>
+        <div class="value-row">
+          <strong>Honestidad</strong>
+          <p>Transparencia sobre las señales detectadas y los límites de cada análisis.</p>
+        </div>
+        <div class="value-row">
+          <strong>Equidad</strong>
+          <p>Acceso seguro y libre de discriminación para cualquier usuario.</p>
+        </div>
+        <div class="value-row">
+          <strong>Responsabilidad</strong>
+          <p>Cero almacenamiento en la nube, prevención de abusos y mejora continua.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- APARTADO 2: CÓDIGO ÉTICO -->
+    <section id="section-codigo" class="section-view">
+      <h2 class="view-title">Código ético</h2>
+      <p class="view-subtitle">Normas de conducta, privacidad y manejo de información.</p>
+
+      <div class="ethics-col searchable-block">
+        <div class="ethics-item">
+          <h3>1. ¿Qué conductas están prohibidas en la plataforma?</h3>
+          <p>Adjuntar fotos o videos con contenido inapropiado, ilícito o sexual/explícito, y saturar la página con archivos mayores a 100 MB.</p>
+        </div>
+        <div class="ethics-item">
+          <h3>2. ¿Cómo se protegerá a los usuarios?</h3>
+          <p>No se requiere cuenta ni datos personales para mayor seguridad, y tampoco se guardan fotos, archivos ni videos en la página ni en ninguna nube.</p>
+        </div>
+        <div class="ethics-item">
+          <h3>3. ¿Cómo se evitará la discriminación?</h3>
+          <p>Esta plataforma estará libre de discriminación por cuestiones de género, tez, orientación sexual, edad o religión.</p>
+        </div>
+        <div class="ethics-item">
+          <h3>4. ¿Qué harán ante información falsa que llegue?</h3>
+          <p>La página buscará detectarla y analizarla, señalando por qué puede no ser verídica y mostrando una alerta cuando la información no resulte verídica.</p>
+        </div>
+        <div class="ethics-item">
+          <h3>5. ¿Cómo se resolverán las quejas?</h3>
+          <p>Contamos con un apartado de comentarios y sugerencias abierto a las críticas para evaluarlas y aplicar mejoras.</p>
+        </div>
+      </div>
+
+      <div class="feedback-wrap">
+        <h3 style="margin: 0 0 0.5rem; font-size: 0.98rem;">Comentarios y sugerencias</h3>
+        <input
+          id="ethics-comment-input"
+          class="input-field"
+          type="text"
+          placeholder="Escribe tu comentario, queja o sugerencia..."
+        />
+        <button id="btn-send-comment" class="btn-dark" type="button">Enviar comentario</button>
+        <div id="ethics-comment-status" class="feedback-note"></div>
+      </div>
+    </section>
+
+    <!-- APARTADO 3: ANALIZADOR DE ENLACES Y FUENTES -->
+    <section id="section-enlaces" class="section-view">
+      <h2 class="view-title">Analizador de enlaces y fuentes</h2>
+      <p class="view-subtitle">
+        Pega una URL o cita para revisar HTTPS, acortadores, dominios genéricos o sospechosos y recordar contrastar fuentes antes de compartir.
+      </p>
+
+      <input
+        id="url-check-input"
+        class="input-field"
+        type="text"
+        placeholder="Pega aquí un enlace o cita (ej. https://sitio-oficial.gob.mx/aviso)"
+      />
+      <button id="btn-analyze-url" class="btn-dark" type="button">Revisar enlace o fuente</button>
+
+      <div id="url-result-box" class="link-result">
+        <span id="url-verdict-chip" class="verdict-chip"></span>
+        <h3 id="url-verdict-title" style="margin: 0.25rem 0 0.45rem; font-size: 1rem;"></h3>
+        <ul id="url-findings-list" class="findings-list"></ul>
+      </div>
+    </section>
+
+    <!-- APARTADO 4: HISTORIAL DE IMÁGENES (SESIÓN LOCAL, SIN NUBE) -->
+    <section id="section-historial" class="section-view">
+      <div class="history-toolbar">
+        <div>
+          <h2 class="view-title" style="margin-bottom: 0.1rem;">Historial de imágenes</h2>
+          <p class="view-subtitle" style="margin: 0;">Solo durante esta visita en la página (no se guarda en ninguna nube).</p>
+        </div>
+        <button id="btn-clear-history" class="btn-clear" type="button">Borrar historial</button>
+      </div>
+
+      <div id="session-history-list" class="history-list">
+        <p style="color: var(--muted); font-size: 0.9rem;">
+          Aún no has analizado imágenes en esta sesión. Sube una foto en Inicio para registrarla aquí.
+        </p>
+      </div>
+    </section>
+
+    <!-- APARTADO 5: POLICÍA CIBERNÉTICA (CONTACTO EN CDMX) -->
+    <section id="section-policia" class="section-view">
+      <h2 class="view-title">Policía Cibernética</h2>
+      <p class="view-subtitle">Canales oficiales de atención y denuncia en la Ciudad de México (Contacto en CDMX).</p>
+
+      <div class="searchable-block">
+        <div class="authority-card">
+          <h3>SSC CDMX (Policía Cibernética)</h3>
+          <ul class="authority-list">
+            <li><strong>Teléfono:</strong> 55 5242 5100, ext. 5086.</li>
+            <li><strong>Correo:</strong> policia.cibernetica@ssc.cdmx.gob.mx.</li>
+            <li><strong>Canales digitales:</strong> App Mi Policía y Sistema Unificado de Atención Ciudadana (SUAC).</li>
+          </ul>
+        </div>
+
+        <div class="authority-card">
+          <h3>FGJCDMX (Unidad de Inteligencia Cibernética)</h3>
+          <ul class="authority-list">
+            <li><strong>Teléfono:</strong> 55 5345 5000 (orientación de denuncia: 55 5246 489).</li>
+            <li><strong>Correo:</strong> gestion_fiscal@fgjcdmx.gob.mx.</li>
+            <li><strong>Ubicación:</strong> Calle Digna Ochoa y Plácido S/N, Col. Doctores, Alcaldía Cuauhtémoc.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const MAX_BYTES = 100 * 1024 * 1024;
+    let currentReportContent = "";
+    const sessionHistory = [];
+
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+
+    /* Firmas específicas de herramientas/metadatos IA (evitando palabras cortas ambiguas en binarios) */
+    const AI_METADATA_SIGNATURES = [
+      "midjourney", "dall-e", "dall·e", "stable diffusion", "comfyui",
+      "automatic1111", "c2pa", "jumbf", "synthid", "adobe firefly",
+      "bing image creator", "dreamstudio", "leonardo.ai", "chatgpt",
+      "openai", "gpt-4", "gpt-5", "anthropic", "google gemini",
+      "imagen 3", "imagen 4", "black forest labs", "ideogram",
+      "runwayml", "pika labs", "luma dream", "kling ai", "recraft",
+      "trainedalgorithmicmedia", "digitalSourceType"
+    ];
+
+    const AI_TEXT_TAGS = [
+      "midjourney", "dall-e", "dalle", "stable diffusion", "comfyui",
+      "automatic1111", "c2pa", "jumbf", "synthid", "adobe firefly",
+      "bing image creator", "dreamstudio", "leonardo.ai", "chatgpt",
+      "openai", "gpt-4", "gpt-5", "claude", "anthropic", "gemini",
+      "imagen 3", "imagen 4", "flux", "ideogram", "sora", "runway",
+      "pika", "luma", "kling", "hailuo", "veo", "recraft", "grok"
+    ];
+
+    const CAMERA_TAGS = [
+      "apple", "iphone", "ipad", "samsung", "sm-g", "sm-s", "sm-a",
+      "canon", "nikon", "sony", "ilce-", "fujifilm", "xiaomi",
+      "redmi", "poco", "motorola", "huawei", "google pixel", "pixel ",
+      "oppo", "realme", "oneplus", "exif", "gpsinfo", "exposuretime",
+      "fnumber", "isospeedratings", "focallength", "lensmodel", "make", "model"
+    ];
+
+    const AI_PHRASES = [
+      "en conclusión", "es importante destacar", "en el mundo actual",
+      "cabe destacar", "en última instancia", "ofrece una amplia gama",
+      "no se trata solo de", "revolucionando la forma", "a lo largo de la historia",
+      "en este sentido", "es fundamental señalar", "en resumen",
+      "por otro lado", "de esta manera", "resulta fundamental",
+      "en la actualidad", "sin lugar a dudas", "papel fundamental"
+    ];
+
+    const SHORTENERS = ["bit.ly", "tinyurl.com", "t.co", "goo.gl", "ow.ly", "rb.gy", "cutt.ly", "is.gd", "adf.ly", "linktr.ee"];
+    const GENERIC_TLDS = [".tk", ".ml", ".ga", ".cf", ".gq", ".xyz", ".top", ".click", ".buzz"];
+    const CLICKBAIT_WORDS = ["urgente", "increible", "increíble", "no-creeras", "viral", "gratis", "premio", "exclusiva", "escandalo", "escándalo", "alerta"];
+    const BLOCKED_NAME_WORDS = ["nsfw", "xxx", "porn", "explicit", "erotic", "desnudo"];
+
+    /* Navegación entre secciones */
+    function setActiveSection(sectionKey) {
+      document.querySelectorAll(".section-view").forEach((sec) => {
+        sec.classList.remove("active");
+      });
+      const target = document.getElementById(`section-${sectionKey}`);
+      if (target) {
+        target.classList.add("active");
+      }
+
+      document.querySelectorAll("#dropdown-nav button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.targetSection === sectionKey);
+      });
+
+      const menu = document.getElementById("dropdown-nav");
+      const trigger = document.getElementById("hamburger-trigger");
+      menu.classList.remove("open");
+      trigger.setAttribute("aria-expanded", "false");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("hamburger-trigger").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById("dropdown-nav");
+      const isOpen = menu.classList.toggle("open");
+      e.currentTarget.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("dropdown-nav");
+      const trigger = document.getElementById("hamburger-trigger");
+      if (menu.classList.contains("open") && !menu.contains(e.target) && !trigger.contains(e.target)) {
+        menu.classList.remove("open");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.querySelectorAll("[data-target-section]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setActiveSection(btn.dataset.targetSection);
+      });
+    });
+
+    document.getElementById("btn-jump-links").addEventListener("click", () => {
+      setActiveSection("enlaces");
+      setTimeout(() => {
+        const inp = document.getElementById("url-check-input");
+        if (inp) inp.focus();
+      }, 120);
+    });
+
+    /* Buscador superior */
+    document.getElementById("top-search-input").addEventListener("input", (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (!q) {
+        document.querySelectorAll(".searchable-block > div").forEach((el) => (el.style.display = ""));
+        return;
+      }
+      if (["valor", "respeto", "justicia", "honestidad", "equidad", "responsabilidad"].some((k) => q.includes(k))) {
+        setActiveSection("valores");
+      } else if (["etico", "ético", "codigo", "código", "queja", "discrimin", "100"].some((k) => q.includes(k))) {
+        setActiveSection("codigo");
+      } else if (["enlace", "link", "url", "http", "fuente", "cita", "acort"].some((k) => q.includes(k))) {
+        setActiveSection("enlaces");
+      } else if (["historial", "sesion", "sesión", "guardad"].some((k) => q.includes(k))) {
+        setActiveSection("historial");
+      } else if (["policia", "policía", "cibernetica", "cibernética", "ssc", "fgj", "denuncia", "cdmx", "contacto"].some((k) => q.includes(k))) {
+        setActiveSection("policia");
+      }
+
+      document.querySelectorAll(".searchable-block > div").forEach((el) => {
+        el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+
+    /* Comentarios en Código ético */
+    document.getElementById("btn-send-comment").addEventListener("click", () => {
+      const input = document.getElementById("ethics-comment-input");
+      const note = document.getElementById("ethics-comment-status");
+      if (!input.value.trim()) {
+        note.style.color = "var(--warn)";
+        note.textContent = "Escribe un comentario o sugerencia antes de enviar.";
+        return;
+      }
+      note.style.color = "var(--real)";
+      note.textContent = "Comentario registrado en esta sesión para evaluación.";
+      input.value = "";
+    });
+
+    /* Subida principal de archivos */
+    document.getElementById("btn-pick-media").addEventListener("click", () => {
+      document.getElementById("file-upload-main").click();
+    });
+
+    document.getElementById("file-upload-main").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) handleMainUpload(file);
+      e.target.value = "";
+    });
+
+    function resetMainPreviews() {
+      const img = document.getElementById("main-img-preview");
+      const vid = document.getElementById("main-vid-preview");
+      img.style.display = "none";
+      img.removeAttribute("src");
+      vid.style.display = "none";
+      vid.pause();
+      vid.removeAttribute("src");
+      document.getElementById("main-result-panel").style.display = "none";
+      document.getElementById("report-sheet").style.display = "none";
+    }
+
+    function validateUploadRules(file, fileNameForLabel) {
+      if (file.size > MAX_BYTES) {
+        presentVerdict("warn", 0, "Archivo rechazado (> 100 MB)", [
+          "El código ético prohíbe archivos mayores a 100 MB."
+        ], fileNameForLabel);
+        return false;
+      }
+      const lower = file.name.toLowerCase();
+      if (BLOCKED_NAME_WORDS.some((w) => lower.includes(w))) {
+        presentVerdict("warn", 0, "Contenido no permitido", [
+          "No se aceptan fotos, videos ni archivos explícitos o inapropiados."
+        ], fileNameForLabel);
+        return false;
+      }
+      return true;
+    }
+
+    /* Extrae solo cadenas legibles continuas (>= 5 caracteres) para evitar falsos positivos en bytes aleatorios */
+    function extractCleanStrings(bytes) {
+      const chunks = [];
+      let current = "";
+      const headLimit = Math.min(bytes.length, 350000);
+      for (let i = 0; i < headLimit; i++) {
+        const b = bytes[i];
+        if ((b >= 48 && b <= 57) || (b >= 65 && b <= 90) || (b >= 97 && b <= 122) || b === 32 || b === 45 || b === 46 || b === 95 || b === 47 || b === 58) {
+          current += String.fromCharCode(b);
+        } else {
+          if (current.length >= 5) chunks.push(current.toLowerCase());
+          current = "";
+        }
+      }
+      if (current.length >= 5) chunks.push(current.toLowerCase());
+      return chunks.join(" ");
+    }
+
+    async function runImageForensics(file) {
+      const buf = await file.arrayBuffer();
+      const metadataStrings = extractCleanStrings(new Uint8Array(buf));
+      const fileNameLower = file.name.toLowerCase();
+
+      const aiHits = AI_METADATA_SIGNATURES.filter(
+        (t) => metadataStrings.includes(t.toLowerCase()) || fileNameLower.includes(t.toLowerCase())
+      );
+      const camHits = CAMERA_TAGS.filter((t) => metadataStrings.includes(t));
+
+      /* Partimos de una línea base realista (32% = probable foto real si no hay señales fuertes de IA) */
+      let score = 32;
+      const findings = [];
+      let dimsText = "N/A";
+      let noiseText = "N/A";
+
+      if (aiHits.length > 0) {
+        score += 52;
+        findings.push(`Firmas o metadatos de IA detectados: ${aiHits.join(", ")}.`);
+      }
+
+      if (camHits.length >= 2) {
+        score -= 22;
+        findings.push(`Metadatos EXIF de cámara o celular detectados (${camHits.slice(0, 4).join(", ")}).`);
+      } else if (camHits.length === 1) {
+        score -= 10;
+        findings.push(`Rastro de dispositivo de captura detectado (${camHits[0]}).`);
+      } else if (aiHits.length === 0) {
+        score += 3;
+        findings.push("Sin metadatos EXIF de cámara (normal si la foto pasó por WhatsApp, redes sociales o captura).");
+      }
+
+      try {
+        const bmp = await createImageBitmap(file);
+        const w = bmp.width;
+        const h = bmp.height;
+        dimsText = `${w}×${h}`;
+
+        /* Resoluciones exactas exclusivas de modelos generativos (no confundir con 1080x1080 de redes) */
+        const strictAiSizes = [
+          [512, 512], [768, 768], [1024, 1024], [2048, 2048],
+          [1024, 1536], [1536, 1024], [1024, 1792], [1792, 1024],
+          [896, 1152], [1152, 896], [832, 1216], [1216, 832],
+          [768, 1344], [1344, 768]
+        ];
+
+        const ratio = Math.max(w, h) / Math.max(1, Math.min(w, h));
+        const isCameraAspect =
+          Math.abs(ratio - 4 / 3) < 0.03 ||
+          Math.abs(ratio - 16 / 9) < 0.03 ||
+          Math.abs(ratio - 3 / 2) < 0.03 ||
+          Math.abs(ratio - 19.5 / 9) < 0.05 ||
+          Math.abs(ratio - 20 / 9) < 0.05;
+
+        if (strictAiSizes.some(([cw, ch]) => cw === w && ch === h) && camHits.length === 0) {
+          score += 18;
+          findings.push(`Resolución ${dimsText} coincide con tamaños nativos de generadores de IA.`);
+        } else if (isCameraAspect) {
+          score -= 8;
+          findings.push(`Proporción de imagen (${dimsText}) compatible con cámara fotográfica o pantalla de celular.`);
+        }
+
+        const cw = Math.min(w, 360);
+        const ch = Math.min(h, 360);
+        const sx = Math.floor((w - cw) / 2);
+        const sy = Math.floor((h - ch) / 2);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = cw;
+        canvas.height = ch;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(bmp, sx, sy, cw, ch, 0, 0, cw, ch);
+        const px = ctx.getImageData(0, 0, cw, ch).data;
+
+        let lapSum = 0;
+        let flatCount = 0;
+        let flatNoiseSum = 0;
+        let chromaDiffSum = 0;
+        let satSum = 0;
+        let extremeCount = 0;
+        let samples = 0;
+
+        for (let y = 1; y < ch - 1; y++) {
+          for (let x = 1; x < cw - 1; x++) {
+            const idx = (y * cw + x) * 4;
+            const r = px[idx], g = px[idx + 1], b = px[idx + 2];
+            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+            const lR = 0.299 * px[idx + 4] + 0.587 * px[idx + 5] + 0.114 * px[idx + 6];
+            const lL = 0.299 * px[idx - 4] + 0.587 * px[idx - 3] + 0.114 * px[idx - 2];
+            const dI = ((y + 1) * cw + x) * 4;
+            const uI = ((y - 1) * cw + x) * 4;
+            const lD = 0.299 * px[dI] + 0.587 * px[dI + 1] + 0.114 * px[dI + 2];
+            const lU = 0.299 * px[uI] + 0.587 * px[uI + 1] + 0.114 * px[uI + 2];
+
+            const lap = Math.abs(4 * lum - lR - lL - lD - lU);
+            lapSum += lap;
+
+            /* Ruido independiente entre canales RGB (característico de sensores ópticos reales) */
+            const rDiff = Math.abs(r - px[idx + 4]);
+            const bDiff = Math.abs(b - px[idx + 6]);
+            chromaDiffSum += Math.abs(rDiff - bDiff);
+
+            if (Math.abs(lR - lL) + Math.abs(lD - lU) < 8) {
+              flatCount++;
+              flatNoiseSum += lap;
+            }
+
+            const maxC = Math.max(r, g, b);
+            const minC = Math.min(r, g, b);
+            satSum += maxC > 0 ? (maxC - minC) / maxC : 0;
+            if (lum < 14 || lum > 242) extremeCount++;
+            samples++;
+          }
+        }
+
+        const flatNoise = flatCount > 30 ? flatNoiseSum / flatCount : lapSum / Math.max(1, samples);
+        const avgChromaNoise = chromaDiffSum / Math.max(1, samples);
+        noiseText = flatNoise.toFixed(2);
+        const avgSat = satSum / Math.max(1, samples);
+        const extRatio = extremeCount / Math.max(1, samples);
+
+        /* Evaluación equilibrada de textura y ruido */
+        if (flatNoise < 1.15 && avgChromaNoise < 1.1) {
+          score += 22;
+          findings.push(`Superficies excesivamente lisas y sintéticas sin grano de sensor (ruido ${noiseText}).`);
+        } else if (flatNoise >= 2.2 || avgChromaNoise >= 1.8) {
+          score -= 14;
+          findings.push(`Grano óptico y variación cromática natural compatible con fotografía real (ruido ${noiseText}).`);
+        } else {
+          findings.push(`Nivel de textura intermedio (${noiseText}), compatible con foto comprimida o editada.`);
+        }
+
+        if (avgSat > 0.44 && extRatio > 0.22 && camHits.length === 0) {
+          score += 14;
+          findings.push(`Saturación muy elevada (${(avgSat * 100).toFixed(0)}%) e iluminación artificial.`);
+        } else if (avgSat <= 0.34 && extRatio <= 0.14) {
+          score -= 8;
+          findings.push(`Rango dinámico y balance de color natural (saturación ${(avgSat * 100).toFixed(0)}%).`);
+        }
+      } catch (_) {
+        findings.push("Análisis realizado a partir de la estructura del archivo.");
+      }
+
+      const finalPct = Math.max(5, Math.min(97, Math.round(score)));
+      let mode = "warn";
+      let title = "INCIERTO / Señales mixtas";
+      if (finalPct >= 64) {
+        mode = "fake";
+        title = "FALSO / Alta probabilidad de IA";
+      } else if (finalPct <= 44) {
+        mode = "real";
+        title = "REAL / Compatible con fotografía auténtica";
+      }
+
+      return { mode, finalPct, title, findings, dimsText, noiseText };
+    }
+
+    function recordImageInSession(file, analysis) {
+      const thumbUrl = URL.createObjectURL(file);
+      const badgeText =
+        analysis.mode === "fake"
+          ? `FALSO / IA (${analysis.finalPct}%)`
+          : analysis.mode === "real"
+          ? `REAL (${100 - analysis.finalPct}%)`
+          : `INCIERTO (${analysis.finalPct}% IA)`;
+
+      sessionHistory.unshift({
+        name: file.name,
+        thumbUrl,
+        badgeText,
+        mode: analysis.mode,
+        dims: analysis.dimsText,
+        time: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })
+      });
+
+      renderSessionHistory();
+    }
+
+    function renderSessionHistory() {
+      const container = document.getElementById("session-history-list");
+      if (sessionHistory.length === 0) {
+        container.innerHTML = `
+          <p style="color: var(--muted); font-size: 0.9rem;">
+            Aún no has analizado imágenes en esta sesión. Sube una foto en Inicio para registrarla aquí.
+          </p>
+        `;
+        return;
+      }
+
+      container.innerHTML = "";
+      sessionHistory.forEach((item) => {
+        const chipClass = item.mode === "fake" ? "chip-fake" : item.mode === "real" ? "chip-real" : "chip-warn";
+        const card = document.createElement("div");
+        card.className = "history-card";
+        card.innerHTML = `
+          <img class="history-thumb" src="${item.thumbUrl}" alt="${item.name}" />
+          <div class="history-meta">
+            <div class="history-name">${item.name}</div>
+            <div style="color: var(--muted); font-size: 0.78rem; margin: 0.15rem 0 0.35rem;">
+              Resolución: ${item.dims} · Hora: ${item.time}
+            </div>
+            <span class="verdict-chip ${chipClass}" style="margin:0;">${item.badgeText}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-clear-history").addEventListener("click", () => {
+      sessionHistory.length = 0;
+      renderSessionHistory();
+    });
+
+    async function handleMainUpload(file) {
+      resetMainPreviews();
+      if (!validateUploadRules(file, file.name)) return;
+
+      const status = document.getElementById("main-status");
+      status.textContent = `Analizando "${file.name}"...`;
+      const lower = file.name.toLowerCase();
+
+      if (file.type.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif|bmp|heic)$/i.test(lower)) {
+        const img = document.getElementById("main-img-preview");
+        img.src = URL.createObjectURL(file);
+        img.style.display = "block";
+        const res = await runImageForensics(file);
+        recordImageInSession(file, res);
+        presentVerdict(res.mode, res.finalPct, res.title, res.findings, `${file.name} (${res.dimsText})`);
+      } else if (file.type.startsWith("video/") || /\.(mp4|mov|webm|mkv|avi)$/i.test(lower)) {
+        const vid = document.getElementById("main-vid-preview");
+        vid.src = URL.createObjectURL(file);
+        vid.style.display = "block";
+        const head = await file.slice(0, 600000).arrayBuffer();
+        const raw = extractCleanStrings(new Uint8Array(head));
+        const aiHits = AI_METADATA_SIGNATURES.filter((t) => raw.includes(t.toLowerCase()) || lower.includes(t.toLowerCase()));
+        const camHits = CAMERA_TAGS.filter((t) => raw.includes(t));
+        let pct = 38;
+        const notes = [];
+        if (aiHits.length > 0) {
+          pct += 48;
+          notes.push(`Etiquetas de IA en contenedor: ${aiHits.join(", ")}.`);
+        }
+        if (camHits.length > 0) {
+          pct -= 20;
+          notes.push(`Metadatos de dispositivo detectados (${camHits.slice(0, 3).join(", ")}).`);
+        }
+        if (notes.length === 0) notes.push("Video sin firmas de generación IA detectadas en el contenedor.");
+        pct = Math.max(5, Math.min(96, pct));
+        const mode = pct >= 64 ? "fake" : pct <= 44 ? "real" : "warn";
+        const title = mode === "fake" ? "FALSO / Video con señales de IA" : mode === "real" ? "REAL / Compatible con video auténtico" : "INCIERTO / Video sin metadatos concluyentes";
+        presentVerdict(mode, pct, title, notes, file.name);
+      } else if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
+        try {
+          const buf = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+          let fullTxt = "";
+          for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            fullTxt += content.items.map((it) => it.str).join(" ") + " ";
+          }
+          document.getElementById("main-text-area").value = fullTxt.trim();
+          analyzeTextString(fullTxt, file.name);
+        } catch (_) {
+          presentVerdict("warn", 50, "No se pudo leer el PDF", ["El PDF puede estar cifrado o escaneado."], file.name);
+        }
+      } else if (file.type.startsWith("text/") || /\.(txt|md|csv|json|log)$/i.test(lower)) {
+        const txt = await file.text();
+        document.getElementById("main-text-area").value = txt;
+        analyzeTextString(txt, file.name);
+      } else {
+        const buf = await file.slice(0, 500000).arrayBuffer();
+        const hits = AI_METADATA_SIGNATURES.filter((t) => extractCleanStrings(new Uint8Array(buf)).includes(t.toLowerCase()));
+        if (hits.length > 0) {
+          presentVerdict("fake", 85, "FALSO / Señales de IA en el archivo", [`Coincidencias: ${hits.join(", ")}.`], file.name);
+        } else {
+          presentVerdict("warn", 50, "INCIERTO / Archivo sin etiquetas de IA", [`Revisado "${file.name}" sin guardarse en la nube.`], file.name);
+        }
+      }
+
+      status.textContent = `Analizado: ${file.name}`;
+    }
+
+    /* Análisis de texto */
+    document.getElementById("btn-check-text").addEventListener("click", () => {
+      analyzeTextString(document.getElementById("main-text-area").value, "Texto pegado");
+    });
+
+    function analyzeTextString(rawText, label) {
+      const text = (rawText || "").trim();
+      if (!text) {
+        presentVerdict("warn", 0, "Sin texto para analizar", ["Escribe o pega un texto primero."], label);
+        return;
+      }
+
+      const words = text.split(/\s+/).filter(Boolean);
+      const clean = words.map((w) => w.toLowerCase().replace(/[^a-záéíóúüñ0-9]/gi, "")).filter(Boolean);
+
+      if (clean.length < 12) {
+        presentVerdict("warn", 50, "Texto muy corto para verificar", [
+          `Solo hay ${clean.length} palabras. Escribe al menos 12–20 palabras para evaluar el estilo.`
+        ], label);
+        return;
+      }
+
+      const lower = text.toLowerCase();
+      const sents = text.split(/[.!?…\n]+/).map((s) => s.trim()).filter((s) => s.split(/\s+/).length >= 3);
+
+      let score = 45;
+      const notes = [];
+
+      const phraseHits = AI_PHRASES.filter((p) => lower.includes(p));
+      if (phraseHits.length > 0) {
+        score += Math.min(36, phraseHits.length * 14);
+        notes.push(`Giros frecuentes en redacción de IA: "${phraseHits.slice(0, 3).join('", "')}".`);
+      }
+
+      const mentionHits = AI_TEXT_TAGS.filter((t) => lower.includes(t));
+      if (mentionHits.length > 0) {
+        score += 25;
+        notes.push(`Menciona herramientas o modelos de IA: ${mentionHits.join(", ")}.`);
+      }
+
+      if (sents.length >= 3) {
+        const lens = sents.map((s) => s.split(/\s+/).length);
+        const mean = lens.reduce((a, b) => a + b, 0) / lens.length;
+        const std = Math.sqrt(lens.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / lens.length);
+        const cv = mean > 0 ? std / mean : 0;
+        if (cv < 0.28 && mean >= 11) {
+          score += 22;
+          notes.push(`Longitud de oraciones muy homogénea (variación ${(cv * 100).toFixed(0)}%).`);
+        } else if (cv > 0.52) {
+          score -= 18;
+          notes.push(`Variación natural en el largo de las oraciones (variación ${(cv * 100).toFixed(0)}%).`);
+        }
+      }
+
+      const bullets = (text.match(/(^|\n)\s*([-*•]|\d+[.)])\s+/g) || []).length;
+      const bolds = (text.match(/\*\*[^*]+\*\*/g) || []).length;
+      if (bullets >= 3 || bolds >= 2) {
+        score += 18;
+        notes.push("Formato de listas o títulos remarcados común en respuestas de IA.");
+      }
+
+      const informal = (text.match(/\b(jaja|jeje|wey|neta|o sea|pues|bueno|xq|tb|tmb)\b/gi) || []).length;
+      const typos = (lower.match(/\b(tambien|ademas|asi|mas|dia|codigo|pagina|informacion|analisis)\b/g) || []).length;
+      if (informal >= 1 || typos >= 2) {
+        score -= 22;
+        notes.push("Rasgos de escritura espontánea o coloquial humana.");
+      }
+
+      const uniqueCount = new Set(clean).size;
+      const ttr = uniqueCount / clean.length;
+      if (clean.length >= 30 && ttr < 0.50) {
+        score += 12;
+        notes.push(`Repetición de palabras elevada (diversidad léxica ${(ttr * 100).toFixed(0)}%).`);
+      }
+
+      if (notes.length === 0) notes.push(`Analizadas ${clean.length} palabras sin señales dominantes.`);
+      score = Math.max(5, Math.min(97, Math.round(score)));
+
+      if (score >= 58) {
+        presentVerdict("fake", score, "FALSO / Alta probabilidad de texto hecho con IA", notes, label);
+      } else if (score <= 42) {
+        presentVerdict("real", score, "REAL / Redacción compatible con autor humano", notes, label);
+      } else {
+        presentVerdict("warn", score, "INCIERTO / Texto mixto o sin señales concluyentes", notes, label);
+      }
+    }
+
+    /* Mostrar veredicto y preparar reporte descargable */
+    function presentVerdict(mode, aiPct, title, notes, sourceName) {
+      const panel = document.getElementById("main-result-panel");
+      const chip = document.getElementById("main-verdict-chip");
+      const heading = document.getElementById("main-verdict-title");
+      const bar = document.getElementById("main-meter-bar");
+      const list = document.getElementById("main-findings");
+
+      panel.style.display = "block";
+      heading.textContent = title;
+
+      let badgeText = "AVISO";
+      if (mode === "fake") {
+        chip.className = "verdict-chip chip-fake";
+        badgeText = `FALSO / IA (${aiPct}%)`;
+        bar.style.width = `${aiPct}%`;
+        bar.style.background = "var(--fake)";
+      } else if (mode === "real") {
+        const realPct = 100 - aiPct;
+        chip.className = "verdict-chip chip-real";
+        badgeText = `REAL (${realPct}%)`;
+        bar.style.width = `${realPct}%`;
+        bar.style.background = "var(--real)";
+      } else {
+        chip.className = "verdict-chip chip-warn";
+        badgeText = aiPct > 0 ? `INCIERTO (${aiPct}% IA)` : "AVISO";
+        bar.style.width = `${aiPct}%`;
+        bar.style.background = "var(--warn)";
+      }
+      chip.textContent = badgeText;
+
+      list.innerHTML = "";
+      notes.forEach((n) => {
+        const li = document.createElement("li");
+        li.textContent = n;
+        list.appendChild(li);
+      });
+
+      currentReportContent = [
+        "REPORTE DE EVIDENCIA — CON INTELIGENCIA",
+        `Fecha y hora: ${new Date().toLocaleString("es-MX")}`,
+        `Elemento analizado: ${sourceName}`,
+        `Resultado: ${badgeText} — ${title}`,
+        "Detalles:",
+        ...notes.map((n) => `  * ${n}`),
+        "Privacidad: Procesado localmente; ningún archivo se guarda en la nube."
+      ].join("\n");
+
+      document.getElementById("report-sheet").textContent = currentReportContent;
+    }
+
+    document.getElementById("btn-view-report").addEventListener("click", () => {
+      if (!currentReportContent) return;
+      const sheet = document.getElementById("report-sheet");
+      const show = sheet.style.display !== "block";
+      sheet.style.display = show ? "block" : "none";
+      if (show && navigator.clipboard) {
+        navigator.clipboard.writeText(currentReportContent).catch(() => {});
+      }
+    });
+
+    document.getElementById("btn-download-report").addEventListener("click", () => {
+      if (!currentReportContent) return;
+      const blob = new Blob([currentReportContent], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "reporte-con-inteligencia.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    /* Apartado 3: Analizador de enlaces y fuentes */
+    document.getElementById("btn-analyze-url").addEventListener("click", () => {
+      const rawUrl = document.getElementById("url-check-input").value.trim();
+      const box = document.getElementById("url-result-box");
+      const chip = document.getElementById("url-verdict-chip");
+      const title = document.getElementById("url-verdict-title");
+      const list = document.getElementById("url-findings-list");
+
+      box.style.display = "block";
+      list.innerHTML = "";
+
+      if (!rawUrl) {
+        chip.className = "verdict-chip chip-warn";
+        chip.textContent = "SIN ENLACE";
+        title.textContent = "Pega un enlace o cita para revisar";
+        list.innerHTML = "<li>Escribe una dirección URL o referencia para evaluarla.</li>";
+        return;
+      }
+
+      const urlMatch = rawUrl.match(/https?:\/\/[^\s]+/i);
+      const candidate = urlMatch ? urlMatch[0] : rawUrl;
+
+      let parsed;
+      try {
+        parsed = new URL(candidate.startsWith("http") ? candidate : `https://${candidate}`);
+      } catch (_) {
+        chip.className = "verdict-chip chip-warn";
+        chip.textContent = "CITA / SIN URL VÁLIDA";
+        title.textContent = "Referencia sin formato de enlace directo";
+        list.innerHTML = [
+          "<li>Si es una cita o noticia sin enlace directo, busca el título o autor en fuentes oficiales o medios verificados.</li>",
+          "<li>Contrasta siempre fechas, autores y contexto antes de compartir.</li>"
+        ].join("");
+        return;
+      }
+
+      let risk = 25;
+      const reasons = [];
+
+      if (parsed.protocol === "https:") {
+        risk -= 10;
+        reasons.push("Cuenta con protocolo HTTPS (conexión cifrada).");
+      } else {
+        risk += 25;
+        reasons.push("No utiliza HTTPS (conexión sin cifrado).");
+      }
+
+      const host = parsed.hostname.toLowerCase();
+      if (SHORTENERS.some((s) => host === s || host.endsWith(`.${s}`))) {
+        risk += 35;
+        reasons.push(`Usa un acortador de enlaces (${host}): el destino final queda oculto.`);
+      }
+
+      if (GENERIC_TLDS.some((ext) => host.endsWith(ext))) {
+        risk += 25;
+        reasons.push(`Terminación de dominio genérica o de bajo costo (${host}): requiere mayor verificación.`);
+      }
+
+      const fullLower = parsed.href.toLowerCase() + " " + rawUrl.toLowerCase();
+      const baitHits = CLICKBAIT_WORDS.filter((w) => fullLower.includes(w));
+      if (baitHits.length > 0) {
+        risk += 20;
+        reasons.push(`Incluye palabras de gancho o urgencia: ${baitHits.join(", ")}.`);
+      }
+
+      if (/\d{1,3}(\.\d{1,3}){3}/.test(host)) {
+        risk += 30;
+        reasons.push("El enlace apunta directamente a una dirección IP en lugar de un dominio claro.");
+      }
+
+      reasons.push(`Dominio identificado: ${host}. Recuerda contrastar la fuente con medios o instituciones confiables antes de compartir.`);
+
+      risk = Math.max(5, Math.min(95, risk));
+      if (risk >= 60) {
+        chip.className = "verdict-chip chip-fake";
+        chip.textContent = `RIESGO ALTO (${risk}%)`;
+        title.textContent = "Alerta: enlace con señales sospechosas";
+      } else if (risk <= 35) {
+        chip.className = "verdict-chip chip-real";
+        chip.textContent = `BAJO RIESGO TÉCNICO (${100 - risk}%)`;
+        title.textContent = "Enlace con estructura básica válida";
+      } else {
+        chip.className = "verdict-chip chip-warn";
+        chip.textContent = `REVISAR FUENTE (${risk}%)`;
+        title.textContent = "Precaución: contrasta la fuente antes de difundir";
+      }
+
+      reasons.forEach((r) => {
+        const li = document.createElement("li");
+        li.textContent = r;
+        list.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
